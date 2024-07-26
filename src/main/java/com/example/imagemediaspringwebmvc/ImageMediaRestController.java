@@ -1,7 +1,9 @@
 package com.example.imagemediaspringwebmvc;
 
+import com.example.imagemediaspringwebmvc.service.MediaStreamLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +24,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("/api/v1/media-service")
+@RequestMapping("/api/media-service")
+@RequiredArgsConstructor
 public class ImageMediaRestController {
+
+    private final MediaStreamLoader mediaLoaderService;
 
     @GetMapping("/test-image")
     @SneakyThrows
@@ -35,7 +40,7 @@ public class ImageMediaRestController {
         return new ResponseEntity<>(readFile, httpHeaders, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/play/{vid_id}")
+    @GetMapping(value = "/v01/play/{vid_id}")
     public ResponseEntity<StreamingResponseBody> playMediaV01(
             @PathVariable("vid_id")
             String video_id,
@@ -118,6 +123,31 @@ public class ImageMediaRestController {
 
             return new ResponseEntity<StreamingResponseBody>
                     (responseStream, responseHeaders, HttpStatus.PARTIAL_CONTENT);
+        }
+        catch (FileNotFoundException e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        catch (IOException e)
+        {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping(value = "/v02/play/{vid_id}")
+    @ResponseBody
+    public ResponseEntity<StreamingResponseBody> playMediaV02(
+            @PathVariable("vid_id")
+            String video_id,
+            @RequestHeader(value = "Range", required = false)
+            String rangeHeader)
+    {
+        try
+        {
+            String filePathString = "C:\\Users\\avraa\\OneDrive\\Изображения\\Пленка\\WIN_20240618_10_33_35_Pro.mp4";
+            ResponseEntity<StreamingResponseBody> retVal =
+                    mediaLoaderService.loadPartialMediaFile(filePathString, rangeHeader);
+
+            return retVal;
         }
         catch (FileNotFoundException e)
         {
