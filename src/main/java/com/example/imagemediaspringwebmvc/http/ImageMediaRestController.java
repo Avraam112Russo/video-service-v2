@@ -1,5 +1,6 @@
-package com.example.imagemediaspringwebmvc;
+package com.example.imagemediaspringwebmvc.http;
 
+import com.example.imagemediaspringwebmvc.gcp.GcpDataUtil;
 import com.example.imagemediaspringwebmvc.service.MediaStreamLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 public class ImageMediaRestController {
 
     private final MediaStreamLoader mediaLoaderService;
+    private final GcpDataUtil gcpDataUtil;
 
     @GetMapping("/test-image")
     @SneakyThrows
@@ -157,5 +159,16 @@ public class ImageMediaRestController {
         {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @GetMapping("/data")
+    public ResponseEntity<?> createNewBucket(@RequestParam String key, @RequestParam String value){
+        gcpDataUtil.saveNewObjectToBucket(key, value);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/object")
+    public ResponseEntity<?> getObjectFromBucket(@RequestParam String key){
+        String objectFromBucket = gcpDataUtil.getObjectFromBucket(key);
+        return new ResponseEntity<>(objectFromBucket, HttpStatus.OK);
     }
 }
