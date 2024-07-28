@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.FileNotFoundException;
@@ -161,7 +162,7 @@ public class ImageMediaRestController {
         }
     }
     @GetMapping("/data")
-    public ResponseEntity<?> createNewBucket(@RequestParam String key, @RequestParam String value){
+    public ResponseEntity<?> saveNewObject(@RequestParam String key, @RequestParam String value){
         gcpDataUtil.saveNewObjectToBucket(key, value);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -170,5 +171,10 @@ public class ImageMediaRestController {
     public ResponseEntity<?> getObjectFromBucket(@RequestParam String key){
         String objectFromBucket = gcpDataUtil.getObjectFromBucket(key);
         return new ResponseEntity<>(objectFromBucket, HttpStatus.OK);
+    }
+    @PostMapping(value = "/video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> saveNewVideoInBucket(@RequestParam MultipartFile file){
+        String fileName =  gcpDataUtil.saveNewVideoInBucket(file);
+        return ResponseEntity.ok(fileName);
     }
 }
