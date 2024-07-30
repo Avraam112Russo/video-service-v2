@@ -16,4 +16,6 @@ public interface MediaStreamLoader
     ResponseEntity<StreamingResponseBody> loadPartialMediaFile
             (String localMediaFilePath, long fileStartPos, long fileEndPos) throws IOException;
 
+//    ResponseEntity<StreamingResponseBody> streamingFileFromGoogleCloud();
+
 }

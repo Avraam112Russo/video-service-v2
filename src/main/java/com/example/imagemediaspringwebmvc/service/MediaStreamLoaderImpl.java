@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -196,7 +194,10 @@ public class MediaStreamLoaderImpl implements MediaStreamLoader {
                 (responseStream, responseHeaders, HttpStatus.PARTIAL_CONTENT);
     }
 
-
+//    @Override
+//    public ResponseEntity<StreamingResponseBody> streamingFileFromGoogleCloud() {
+//
+//    }
 
 
     private long safeParseStringValuetoLong(String valToParse, long defaultVal) {

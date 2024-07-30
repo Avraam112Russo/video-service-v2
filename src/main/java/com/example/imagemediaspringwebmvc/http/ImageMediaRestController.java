@@ -6,6 +6,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -28,6 +31,7 @@ import java.nio.file.Paths;
 @RestController
 @RequestMapping("/api/media-service")
 @RequiredArgsConstructor
+@Slf4j
 public class ImageMediaRestController {
 
     private final MediaStreamLoader mediaLoaderService;
@@ -137,7 +141,6 @@ public class ImageMediaRestController {
         }
     }
     @GetMapping(value = "/v02/play/{vid_id}")
-    @ResponseBody
     public ResponseEntity<StreamingResponseBody> playMediaV02(
             @PathVariable("vid_id")
             String video_id,
@@ -161,6 +164,22 @@ public class ImageMediaRestController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+//    @GetMapping(value = "/v01/gcp/video")
+//    public ResponseEntity<byte[]> playVideoFromGoogleStorageV01(
+//            @RequestParam("fileName")
+//            String fileName,
+//            @RequestHeader(value = "Range", required = false)
+//            String rangeHeader) {
+//            return gcpDataUtil.getVideoFromBucket(fileName, rangeHeader);
+//    }
+
+
+
+
+
     @GetMapping("/data")
     public ResponseEntity<?> saveNewObject(@RequestParam String key, @RequestParam String value){
         gcpDataUtil.saveNewObjectToBucket(key, value);
@@ -176,5 +195,32 @@ public class ImageMediaRestController {
     public ResponseEntity<?> saveNewVideoInBucket(@RequestParam MultipartFile file){
         String fileName =  gcpDataUtil.saveNewVideoInBucket(file);
         return ResponseEntity.ok(fileName);
+    }
+
+
+//    @GetMapping(value = "/video")
+//    public ResponseEntity<?> fetchVideoFromBucketAndSaveInProject(@RequestParam String key) throws IOException {
+//        gcpDataUtil.streamObjectDownload("social-media-app-160800",
+//                "n1nt3nd0-bucket-russo",
+//                key);
+//        log.info("Stream object download complete successfully!");
+//        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+    @GetMapping(value = "/video-content")
+    public ResponseEntity<byte[]> getVideoFromBucketAndReturnToClient(@RequestParam String key) throws IOException {
+       gcpDataUtil.streamObjectDownloadAndReturnToClient("social-media-app-160800",
+                "n1nt3nd0-bucket-russo",
+                key);
+        log.info("Stream object download IN <RestController> complete successfully!");
+//        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.setContentType(MediaType.valueOf("video/mp4"));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/stream-video")
+    public ResponseEntity<StreamingResponseBody> streamVideoFromGoogleCloud(@RequestParam("fileName")String fileName) {
+        return gcpDataUtil.streamVideoFromGcp(fileName);
     }
 }
